@@ -66,21 +66,27 @@ the [Rosetta Code](https://rosettacode.org/) corpus behind
 error nodes the parser leaves behind:
 
 ```
-files          1077
-bytes          843766
-clean parses   1049 (97.40%)
-error nodes    591
+files          1070
+bytes          836785
+clean parses   1044 (97.57%)
+error nodes    604
 ```
 
-All 28 files that did not parse cleanly were read. **None is a gap in the
+All 26 files that did not parse cleanly were read. **None is a gap in the
 grammar:**
 
 | | |
 | --: | --- |
-| 15 | are not Lua at all: C source, HTML output, shell command lines, REPL transcripts and program output, filed under Lua on the wiki |
+| 14 | are not Lua at all: C source, HTML output, shell command lines, REPL transcripts and program output, filed under Lua on the wiki |
 | 5 | are Lua that genuinely does not compile: a missing `do`, a missing `then`, an unclosed `print(` |
 | 4 | are fragments rather than chunks, like a bare `3.14159` or an anonymous function header |
-| 4 | were damaged before the parser saw them, by the corpus pipeline that masks the language's own name |
+| 3 | were damaged before the parser saw them, by a corpus pipeline that masks the language's own name and decodes HTML entities inside string literals |
+
+The measurement paid for itself on the first run. It found a bug in the corpus
+pipeline rather than in the grammar: the comment stripper read `--[==[` as an
+ordinary `--` line comment, so a levelled long comment left its body and its
+closer behind as code, and one snippet had been reduced to nothing but `]====]`.
+Those numbers are from the corpus rebuilt after that was fixed.
 
 Run it against your own Lua:
 
