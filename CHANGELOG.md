@@ -2,12 +2,34 @@
 
 ## 0.2.0 (2026-07-26)
 
-The package is now published as both ESM and CJS, and its layout follows the
-conventions the `@codemirror/lang-*` and `@lezer/*` packages use: the entry
-point is `src/lua.ts`, the generated parser sits next to the grammar in `src/`,
-and rollup builds `dist/index.js` and `dist/index.cjs`.
+### Bug fixes
 
-No grammar changes. The parser is byte for byte what 0.1.0 shipped.
+The type declaration no longer imports a module it does not ship. 0.1.0's
+`dist/index.d.ts` opened with `import {parser} from "./parser.js"`, and no
+`parser.d.ts` sat beside it, so any consumer without `skipLibCheck` got
+`TS7016: Could not find a declaration file for module './parser.js'`. The
+declaration is self-contained now.
+
+### New features
+
+The package is published as CommonJS as well as ESM. `require()` against 0.1.0
+failed with `ERR_PACKAGE_PATH_NOT_EXPORTED`.
+
+Doc comments reach the declaration file, so editors show them on hover.
+
+### Breaking changes
+
+`@codincod/codemirror-lang-lua/package.json` is no longer an exported subpath.
+The `@codemirror/lang-*` packages do not export it either.
+
+### Other
+
+The layout follows the conventions the `@codemirror/lang-*` and `@lezer/*`
+packages share: `src/lua.ts` is the entry point, the generated parser sits next
+to the grammar in `src/`, and the build is `@codemirror/buildhelper`.
+
+No grammar changes. The parser is byte for byte what 0.1.0 shipped, and the
+corpus figure is still 97.57% of 1070 snippets.
 
 ## 0.1.0 (2026-07-26)
 
