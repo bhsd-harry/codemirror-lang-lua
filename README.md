@@ -1,6 +1,6 @@
 # @codincod/codemirror-lang-lua [![NPM version](https://img.shields.io/npm/v/@codincod/codemirror-lang-lua.svg)](https://www.npmjs.org/package/@codincod/codemirror-lang-lua)
 
-[ [**CHANGELOG**](https://codeberg.org/reeven/codemirror-lang-lua/src/branch/main/CHANGELOG.md) ]
+[ [**CHANGELOG**](https://codeberg.org/reeven/codemirror-lang-lua/src/branch/master/CHANGELOG.md) ]
 
 This package implements Lua language support for the
 [CodeMirror](https://codemirror.net/) code editor, using a
@@ -11,7 +11,7 @@ tokens and stops there. Without a tree there is no structural folding, no
 indentation that knows what a block is, and no node-aware selection.
 
 This code is released under an
-[MIT license](https://codeberg.org/reeven/codemirror-lang-lua/src/branch/main/LICENSE).
+[MIT license](https://codeberg.org/reeven/codemirror-lang-lua/src/branch/master/LICENSE).
 
 ## Usage
 
