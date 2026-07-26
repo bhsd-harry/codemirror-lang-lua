@@ -5,10 +5,11 @@
     "moduleResolution": "bundler",
     "strict": true,
     "declaration": true,
+    "emitDeclarationOnly": true,
     "outDir": "dist",
     "rootDir": "src",
     "skipLibCheck": true,
     "noEmitOnError": true
   },
-  "include": ["src/index.ts", "src/tokens.ts", "src/parser.d.ts", "src/parser.terms.d.ts"]
+  "include": ["src/lua.ts", "src/tokens.ts", "src/parser.d.ts", "src/parser.terms.d.ts"]
 }

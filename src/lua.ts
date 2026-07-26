@@ -35,6 +35,8 @@ const blockStatements =
   "ForNumericStatement ForGenericStatement " +
   "FunctionDeclaration LocalFunctionDeclaration FunctionExpression"
 
+/// A language provider based on the Lezer Lua parser in this package,
+/// extended with highlighting, folding and indentation information.
 export const luaLanguage = LRLanguage.define({
   name: "lua",
   parser: parser.configure({
@@ -119,6 +121,7 @@ const constants = [
   {label: "self", type: "variable"}
 ]
 
+/// Autocompletion for Lua's keywords, globals and standard library tables.
 export const luaCompletion: CompletionSource = completeFromList([
   ...keywords,
   ...globals,
@@ -126,7 +129,7 @@ export const luaCompletion: CompletionSource = completeFromList([
   ...constants
 ])
 
-/// Language support for Lua.
+/// Lua language support, with completion for the standard library.
 export function lua() {
   return new LanguageSupport(luaLanguage, [luaLanguage.data.of({autocomplete: luaCompletion})])
 }

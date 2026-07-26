@@ -1,4 +1,4 @@
-import {parser} from "../dist/parser.js"
+import {parser} from "../dist/index.js"
 import {fileTests} from "@lezer/generator/test"
 import {readdirSync, readFileSync} from "fs"
 import {fileURLToPath} from "url"

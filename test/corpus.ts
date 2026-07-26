@@ -9,7 +9,7 @@
 // which are CC BY-SA and cannot be redistributed under this package's licence,
 // so point the script at your own directory of Lua.
 
-import {parser} from "../dist/parser.js"
+import {parser} from "../dist/index.js"
 import {readdirSync, readFileSync, statSync} from "fs"
 import {join} from "path"
 

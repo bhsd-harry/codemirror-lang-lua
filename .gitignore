@@ -1,3 +1,5 @@
 node_modules/
 dist/
+src/parser.js
+src/parser.terms.js
 *.tgz

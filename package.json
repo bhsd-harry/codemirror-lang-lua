@@ -1,42 +1,32 @@
 {
   "name": "@codincod/codemirror-lang-lua",
-  "version": "0.1.0",
-  "description": "Lua language support for CodeMirror 6, built on a Lezer grammar",
+  "version": "0.2.0",
+  "description": "Lua language support for the CodeMirror code editor",
   "keywords": [
-    "codemirror",
-    "codemirror6",
-    "lezer",
-    "lua",
-    "luau",
-    "syntax",
-    "highlighting",
-    "parser",
-    "editor"
+    "editor",
+    "code"
   ],
+  "author": "CodinCod <hello@codincod.com>",
   "license": "MIT",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./package.json": "./package.json"
-  },
   "sideEffects": false,
   "files": [
     "dist",
-    "src/lua.grammar",
-    "src/tokens.js"
+    "src"
   ],
   "scripts": {
-    "build:parser": "mkdir -p dist && lezer-generator src/lua.grammar -o dist/parser.js",
-    "build": "npm run build:parser && tsc -p tsconfig.json",
+    "build": "rm -rf dist && lezer-generator src/lua.grammar -o src/parser.js && cm-buildhelper src/lua.ts",
+    "build-debug": "lezer-generator src/lua.grammar --names -o src/parser.js && cm-buildhelper src/lua.ts",
+    "prepare": "npm run build",
     "test": "npm run build && node --test \"test/*.test.ts\"",
-    "corpus": "npm run build && node test/corpus.ts",
-    "prepublishOnly": "npm run test"
+    "corpus": "npm run build && node test/corpus.ts"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.0.0",
@@ -46,6 +36,7 @@
     "@lezer/lr": "^1.0.0"
   },
   "devDependencies": {
+    "@codemirror/buildhelper": "^1.0.2",
     "@codemirror/state": "^6.7.1",
     "@lezer/generator": "^1.7.0",
     "typescript": "^5.6.0"
