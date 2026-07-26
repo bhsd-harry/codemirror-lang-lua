@@ -1,0 +1,162 @@
+# Operator precedence: power binds tighter than unary minus
+
+x = -2 ^ 2
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",UnaryExpression(ArithOp,BinaryExpression(Number,ArithOp,Number)))))
+
+# Power is right associative
+
+x = 2 ^ 3 ^ 2
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",BinaryExpression(Number,ArithOp,BinaryExpression(Number,ArithOp,Number)))))
+
+# Concatenation is right associative
+
+x = a .. b .. c
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",BinaryExpression(Name,ConcatOp,BinaryExpression(Name,ConcatOp,Name)))))
+
+# Multiplication binds tighter than addition
+
+x = 1 + 2 * 3
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",BinaryExpression(Number,ArithOp,BinaryExpression(Number,ArithOp,Number)))))
+
+# and binds tighter than or
+
+x = a or b and c
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",BinaryExpression(Name,or,BinaryExpression(Name,and,Name)))))
+
+# Bitwise operators, in their own order
+
+x = a | b ~ c & d << e
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",BinaryExpression(Name,BitOp,BinaryExpression(Name,BitOp,BinaryExpression(Name,BitOp,BinaryExpression(Name,BitOp,Name)))))))
+
+# Unary operators
+
+x = not a
+y = #t
+z = ~b
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",UnaryExpression(not,Name)),AssignStatement(Name,"=",UnaryExpression(LengthOp,Name)),
+  AssignStatement(Name,"=",UnaryExpression(BitOp,Name))))
+
+# Comparison, including Lua's not-equal
+
+x = a ~= b
+y = a == b
+z = a <= b
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",BinaryExpression(Name,CompareOp,Name)),
+  AssignStatement(Name,"=",BinaryExpression(Name,CompareOp,Name)),AssignStatement(Name,"=",BinaryExpression(Name,CompareOp,Name))))
+
+# Integer division and modulo
+
+x = 7 // 2 % 3
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",BinaryExpression(BinaryExpression(Number,ArithOp,Number),ArithOp,Number))))
+
+# Calls without parentheses
+
+f "literal"
+g {1, 2}
+h [[long]]
+
+==>
+
+Chunk(Block(ExpressionStatement(CallExpression(Name,String)),ExpressionStatement(CallExpression(Name,TableExpression("{",Number,",",Number,"}"))),
+  ExpressionStatement(CallExpression(Name,LongString))))
+
+# Method calls chain
+
+obj:method(1):other()
+
+==>
+
+Chunk(Block(ExpressionStatement(MethodCallExpression(MethodCallExpression(Name,":",MethodName,ArgList("(",Number,")")),":",MethodName,ArgList("(",")")))))
+
+# A parenthesised expression can be called
+
+("x"):upper()
+
+==>
+
+Chunk(Block(ExpressionStatement(MethodCallExpression(ParenthesizedExpression("(",String,")"),":",MethodName,ArgList("(",")")))))
+
+# Table constructor with all three field forms
+
+t = {1, x = 2, ["y"] = 3, [4] = f(), }
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",TableExpression("{",Number,",",Property(PropertyName,"=",Number),",",Property("[",String,"]","=",Number),",",Property("[",Number,"]","=",CallExpression(Name,ArgList("(",")"))),",","}"))))
+
+# Table with semicolon separators
+
+t = {1; 2; 3}
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",TableExpression("{",Number,";",Number,";",Number,"}"))))
+
+# Vararg in an expression and a table
+
+local function f(...)
+  return {...}, select("#", ...)
+end
+
+==>
+
+Chunk(Block(LocalFunctionDeclaration(local,function,VariableDefinition,ParamList("(",Vararg,")"),Block(ReturnStatement(return,TableExpression("{",Vararg,"}"),",",CallExpression(Name,ArgList("(",String,",",Vararg,")")))),end)))
+
+# Function expressions
+
+local f = function(a) return a end
+
+==>
+
+Chunk(Block(LocalStatement(local,AttribName(VariableDefinition),"=",FunctionExpression(function,ParamList("(",VariableDefinition,")"),Block(ReturnStatement(return,Name)),end))))
+
+# Numbers in every shape Lua accepts
+
+a = 3
+b = 3.0
+c = 3.1416e-2
+d = .5
+e = 0xff
+f = 0x0.1E
+g = 0xA23p-4
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",Number),AssignStatement(Name,"=",Number),
+  AssignStatement(Name,"=",Number),AssignStatement(Name,"=",Number),AssignStatement(Name,"=",Number),
+  AssignStatement(Name,"=",Number),AssignStatement(Name,"=",Number)))
+
+# Indexing binds to the left
+
+x = a.b[c].d
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",MemberExpression(IndexExpression(MemberExpression(Name,".",PropertyName),"[",Name,"]"),".",PropertyName))))

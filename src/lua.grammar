@@ -1,0 +1,251 @@
+// Lua 5.4 grammar for the Lezer parser system.
+//
+// Written against the grammar in §9 of the Lua 5.4 reference manual, with the
+// two departures every Lua parser makes. Rule `var` and rule `prefixexp` are
+// merged into `suffixedExpression`, because keeping them apart needs a second
+// token of lookahead to tell `a = 1` from `a()`. And a statement never ends at
+// a newline, since Lua's does not either: `f\n(x)` is one call, not two
+// statements.
+//
+// Long brackets are the one thing a regular tokenizer cannot read: the closing
+// `]==]` has to carry the same number of `=` as the opening `[==[`, and that is
+// counting, not matching. They come from the external tokenizer in tokens.js,
+// which also reads line comments, so that `--[[` is never first read as `--`.
+
+@precedence {
+  suffix,
+  power @right,
+  unary,
+  mult @left,
+  add @left,
+  concat @right,
+  shift @left,
+  band @left,
+  bxor @left,
+  bor @left,
+  compare @left,
+  and @left,
+  or @left
+}
+
+@top Chunk { Block }
+
+Block { statement* ReturnStatement? }
+
+statement[@isGroup=Statement] {
+  EmptyStatement |
+  Label |
+  BreakStatement |
+  GotoStatement |
+  DoStatement |
+  WhileStatement |
+  RepeatStatement |
+  IfStatement |
+  ForNumericStatement |
+  ForGenericStatement |
+  FunctionDeclaration |
+  LocalFunctionDeclaration |
+  LocalStatement |
+  AssignStatement |
+  ExpressionStatement
+}
+
+EmptyStatement { ";" }
+
+Label { "::" LabelName "::" }
+
+BreakStatement { kw<"break"> }
+
+GotoStatement { kw<"goto"> LabelName }
+
+ReturnStatement { kw<"return"> commaSep<expression> ";"? }
+
+DoStatement { kw<"do"> Block kw<"end"> }
+
+WhileStatement { kw<"while"> expression kw<"do"> Block kw<"end"> }
+
+RepeatStatement { kw<"repeat"> Block kw<"until"> expression }
+
+IfStatement {
+  kw<"if"> expression kw<"then"> Block
+  (kw<"elseif"> expression kw<"then"> Block)*
+  (kw<"else"> Block)?
+  kw<"end">
+}
+
+// `for i = 1, 10, 2 do`. The step is optional; anything else is the generic
+// form below, and one token of lookahead after the name tells them apart.
+ForNumericStatement {
+  kw<"for"> VariableDefinition "=" expression "," expression ("," expression)?
+  kw<"do"> Block kw<"end">
+}
+
+ForGenericStatement {
+  kw<"for"> commaSep1<VariableDefinition> kw<"in"> commaSep1<expression>
+  kw<"do"> Block kw<"end">
+}
+
+FunctionDeclaration { kw<"function"> FunctionName functionBody }
+
+FunctionName { Name ("." PropertyName)* (":" MethodName)? }
+
+LocalFunctionDeclaration { kw<"local"> kw<"function"> VariableDefinition functionBody }
+
+LocalStatement {
+  kw<"local"> commaSep1<AttribName> ("=" commaSep1<expression>)?
+}
+
+// `local x <const>`, `local f <close>`. The angle brackets are only ever an
+// attribute here: a name in this position cannot be the start of a comparison.
+AttribName { VariableDefinition Attrib? }
+
+Attrib { "<" AttributeName ">" }
+
+AssignStatement { commaSep1<suffixedExpression> "=" commaSep1<expression> }
+
+ExpressionStatement { suffixedExpression }
+
+functionBody { ParamList Block kw<"end"> }
+
+ParamList { "(" commaSep<VariableDefinition | Vararg> ")" }
+
+expression[@isGroup=Expression] {
+  Nil |
+  True |
+  False |
+  Number |
+  String |
+  LongString |
+  Vararg |
+  FunctionExpression |
+  TableExpression |
+  suffixedExpression |
+  UnaryExpression |
+  BinaryExpression
+}
+
+// Everything a call or an index can be applied to, which in Lua is everything
+// except a literal: `("x"):upper()` needs the parentheses, `x.y.z()` does not.
+suffixedExpression {
+  Name |
+  ParenthesizedExpression |
+  MemberExpression |
+  IndexExpression |
+  CallExpression |
+  MethodCallExpression
+}
+
+ParenthesizedExpression { "(" expression ")" }
+
+// The `!suffix` markers are the answer to Lua's one real ambiguity. A newline
+// does not end a statement, so `f\n(x)` is a call rather than two statements,
+// and the parser has to prefer growing the expression over reducing it to a
+// statement. Lua itself made the same choice; 5.1 called it "ambiguous syntax"
+// and 5.2 dropped the complaint.
+MemberExpression { suffixedExpression !suffix "." PropertyName }
+
+IndexExpression { suffixedExpression !suffix "[" expression "]" }
+
+CallExpression { suffixedExpression !suffix arguments }
+
+MethodCallExpression { suffixedExpression !suffix ":" MethodName arguments }
+
+// `f(x)`, `f{...}` and `f"..."` are all calls. The last two are why a table or
+// a string can follow an expression with no operator between them.
+arguments { ArgList { "(" commaSep<expression> ")" } | TableExpression | String | LongString }
+
+FunctionExpression { kw<"function"> functionBody }
+
+TableExpression { "{" (field (fieldSeparator field)* fieldSeparator?)? "}" }
+
+field { Property { "[" expression "]" "=" expression } | Property { PropertyName "=" expression } | expression }
+
+fieldSeparator { "," | ";" }
+
+UnaryExpression {
+  !unary (kw<"not"> | ArithOp<"-"> | LengthOp<"#"> | BitOp<"~">) expression
+}
+
+BinaryExpression {
+  expression !or kw<"or"> expression |
+  expression !and kw<"and"> expression |
+  expression !compare CompareOp<"<" | "<=" | ">" | ">=" | "==" | "~="> expression |
+  expression !bor BitOp<"|"> expression |
+  expression !bxor BitOp<"~"> expression |
+  expression !band BitOp<"&"> expression |
+  expression !shift BitOp<"<<" | ">>"> expression |
+  expression !concat ConcatOp expression |
+  expression !add ArithOp<"+" | "-"> expression |
+  expression !mult ArithOp<"*" | "/" | "//" | "%"> expression |
+  expression !power ArithOp<"^"> expression
+}
+
+commaSep<content> { (content ("," content)*)? }
+commaSep1<content> { content ("," content)* }
+
+kw<term> { @specialize[@name={term}]<identifier, term> }
+
+ArithOp<expr> { expr }
+BitOp<expr> { expr }
+CompareOp<expr> { expr }
+LengthOp<expr> { expr }
+
+Name { identifier }
+VariableDefinition { identifier }
+PropertyName { identifier }
+MethodName { identifier }
+LabelName { identifier }
+AttributeName { identifier }
+
+Nil { @specialize[@name=nil]<identifier, "nil"> }
+True { @specialize[@name=true]<identifier, "true"> }
+False { @specialize[@name=false]<identifier, "false"> }
+
+@skip { space | Comment }
+
+@external tokens longTokens from "./tokens.js" { LongString, Comment }
+
+@tokens {
+  space { $[ \t\r\n]+ }
+
+  // Stock Lua accepts ASCII identifiers only, and this accepts anything above
+  // U+007F as well. Lua's lexer asks the C library whether a byte is a letter,
+  // so whether `local α = 1` compiles depends on the locale the interpreter
+  // was built against, and code in the wild uses it: Rosetta Code has a whole
+  // task about it. An editor that paints working code as broken is worse than
+  // one that accepts a program some builds will reject, and rejecting it is a
+  // linter's job anyway.
+  identifier { $[a-zA-Z_\u{80}-\u{10ffff}] $[a-zA-Z_0-9\u{80}-\u{10ffff}]* }
+
+  // Lua's escapes, including `\z` (skip whitespace), `\x41`, `\u{1F600}`,
+  // `\65` and a backslash-newline continuation. A short string that runs to
+  // the end of the line is left unterminated rather than swallowing the rest
+  // of the file, which is what an editor wants while somebody is typing.
+  String {
+    '"' (![\\\n"] | escape)* '"'? |
+    "'" (![\\\n'] | escape)* "'"?
+  }
+
+  // `\z` eats the whitespace that follows it, newlines included, which is how
+  // a long line of Lua is wrapped. A backslash before a newline continues the
+  // string the same way. Every other escape is one character, and validating
+  // which ones exist is a linter's job, not a parser's.
+  escape { "\\" ("z" $[ \t\r\n]* | ![z]) }
+
+  hex { $[0-9a-fA-F] }
+
+  Number {
+    ($[0-9]+ ("." $[0-9]*)? | "." $[0-9]+) ($[eE] $[+\-]? $[0-9]+)? |
+    "0" $[xX] (hex+ ("." hex*)? | "." hex+) ($[pP] $[+\-]? $[0-9]+)?
+  }
+
+  Vararg { "..." }
+  ConcatOp { ".." }
+
+  "::" "(" ")" "[" "]" "{" "}" "," ";" ":" "." "="
+
+  @precedence { Number, Vararg, ConcatOp, "." }
+  @precedence { "::", ":" }
+}
+
+@detectDelim

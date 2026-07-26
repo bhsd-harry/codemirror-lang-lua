@@ -1,0 +1,103 @@
+# Line comment
+
+-- a comment
+local x = 1 -- trailing
+
+==>
+
+Chunk(Comment,Block(LocalStatement(local,AttribName(VariableDefinition),"=",Number)),
+  Comment)
+
+# Long comment
+
+--[[ a long
+     comment ]]
+local x = 1
+
+==>
+
+Chunk(Comment,Block(LocalStatement(local,AttribName(VariableDefinition),"=",Number)))
+
+# Long comment with a level
+
+--[==[ contains ]] and ]=] without ending ]==]
+local x = 1
+
+==>
+
+Chunk(Comment,Block(LocalStatement(local,AttribName(VariableDefinition),"=",Number)))
+
+# Long string
+
+s = [[line one
+line two]]
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",LongString)))
+
+# Long string with a level, containing a bracket
+
+s = [==[ has ]] inside ]==]
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",LongString)))
+
+# A long string is not indexing
+
+t = a[[key]]
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",CallExpression(Name,LongString))))
+
+# Ordinary indexing is not a long string
+
+t = a[b]
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",IndexExpression(Name,"[",Name,"]"))))
+
+# Escapes in a short string
+
+s = "a\"b\n\65\x41\u{1F600}\z
+     continued"
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",String)))
+
+# Single quotes
+
+s = 'it\'s'
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",String)))
+
+# Shebang
+
+#!/usr/bin/env lua
+print("hi")
+
+==>
+
+Chunk(Comment,Block(ExpressionStatement(CallExpression(Name,ArgList("(",String,")")))))
+
+# A hash after the first line is the length operator
+
+n = #t
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",UnaryExpression(LengthOp,Name))))
+
+# An unterminated long string runs to the end rather than eating the parse
+
+s = [[ unterminated
+
+==>
+
+Chunk(Block(AssignStatement(Name,"=",LongString)))

@@ -1,0 +1,123 @@
+# Local declaration
+
+local x = 1
+
+==>
+
+Chunk(Block(LocalStatement(local,AttribName(VariableDefinition),"=",Number)))
+
+# Local with several names and values
+
+local a, b, c = 1, 2
+
+==>
+
+Chunk(Block(LocalStatement(local,AttribName(VariableDefinition),",",AttribName(VariableDefinition),",",AttribName(VariableDefinition),"=",Number,",",Number)))
+
+# Attributes
+
+local handle <close> = io.open("f")
+local limit <const> = 10
+
+==>
+
+Chunk(Block(LocalStatement(local,AttribName(VariableDefinition,Attrib(AttributeName)),"=",CallExpression(MemberExpression(Name,".",PropertyName),ArgList("(",String,")"))),
+  LocalStatement(local,AttribName(VariableDefinition,Attrib(AttributeName)),"=",Number)))
+
+# Assignment to several targets
+
+a, t.x, t[1] = 1, 2, 3
+
+==>
+
+Chunk(Block(AssignStatement(Name,",",MemberExpression(Name,".",PropertyName),",",IndexExpression(Name,"[",Number,"]"),"=",Number,",",Number,",",Number)))
+
+# If, elseif, else
+
+if a then
+  f()
+elseif b then
+  g()
+else
+  h()
+end
+
+==>
+
+Chunk(Block(IfStatement(if,Name,then,Block(ExpressionStatement(CallExpression(Name,ArgList("(",")")))),elseif,Name,then,Block(ExpressionStatement(CallExpression(Name,ArgList("(",")")))),else,Block(ExpressionStatement(CallExpression(Name,ArgList("(",")")))),end)))
+
+# Numeric for with a step
+
+for i = 1, 10, 2 do end
+
+==>
+
+Chunk(Block(ForNumericStatement(for,VariableDefinition,"=",Number,",",Number,",",Number,do,Block,end)))
+
+# Generic for
+
+for k, v in pairs(t) do end
+
+==>
+
+Chunk(Block(ForGenericStatement(for,VariableDefinition,",",VariableDefinition,in,CallExpression(Name,ArgList("(",Name,")")),do,Block,end)))
+
+# While and repeat
+
+while true do break end
+repeat f() until done
+
+==>
+
+Chunk(Block(WhileStatement(while,True(true),do,Block(BreakStatement(break)),end),
+  RepeatStatement(repeat,Block(ExpressionStatement(CallExpression(Name,ArgList("(",")")))),until,Name)))
+
+# Goto and labels
+
+::top::
+goto top
+
+==>
+
+Chunk(Block(Label("::",LabelName,"::"),GotoStatement(goto,LabelName)))
+
+# Function declaration with a dotted and method name
+
+function a.b.c:m(x, ...)
+  return x
+end
+
+==>
+
+Chunk(Block(FunctionDeclaration(function,FunctionName(Name,".",PropertyName,".",PropertyName,":",MethodName),ParamList("(",VariableDefinition,",",Vararg,")"),Block(ReturnStatement(return,Name)),end)))
+
+# Local function
+
+local function fib(n)
+  if n < 2 then return n end
+  return fib(n - 1) + fib(n - 2)
+end
+
+==>
+
+Chunk(Block(LocalFunctionDeclaration(local,function,VariableDefinition,ParamList("(",VariableDefinition,")"),Block(IfStatement(if,BinaryExpression(Name,CompareOp,Number),then,Block(ReturnStatement(return,Name)),end),ReturnStatement(return,BinaryExpression(CallExpression(Name,ArgList("(",BinaryExpression(Name,ArithOp,Number),")")),ArithOp,CallExpression(Name,ArgList("(",BinaryExpression(Name,ArithOp,Number),")"))))),end)))
+
+# Empty statements
+
+;;
+local x = 1;
+
+==>
+
+Chunk(Block(EmptyStatement(";"),EmptyStatement(";"),LocalStatement(local,AttribName(VariableDefinition),"=",Number),
+  EmptyStatement(";")))
+
+# Do block
+
+do
+  local x = 1
+end
+
+==>
+
+Chunk(Block(DoStatement(do,Block(LocalStatement(local,AttribName(VariableDefinition),"=",Number)),end)))
