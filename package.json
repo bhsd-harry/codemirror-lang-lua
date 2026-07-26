@@ -46,6 +46,7 @@
     "@lezer/lr": "^1.0.0"
   },
   "devDependencies": {
+    "@codemirror/state": "^6.7.1",
     "@lezer/generator": "^1.7.0",
     "typescript": "^5.6.0"
   },
