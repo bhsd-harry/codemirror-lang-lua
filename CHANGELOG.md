@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 (2026-07-29)
+
+A line in the README saying what this was written for, and a link to the
+platform it was written for. Nothing in the code changed.
+
 ## 0.2.0 (2026-07-26)
 
 ### Bug fixes
