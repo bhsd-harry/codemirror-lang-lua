@@ -10,6 +10,9 @@ CodeMirror ships Lua as a CodeMirror 5 stream mode. A stream mode colours
 tokens and stops there. Without a tree there is no structural folding, no
 indentation that knows what a block is, and no node-aware selection.
 
+Written in part for [CodinCod](https://codincod.com/), a competitive coding
+platform, where it colours the editor people solve puzzles in.
+
 This code is released under an
 [MIT license](https://codeberg.org/reeven/codemirror-lang-lua/src/branch/master/LICENSE).
 

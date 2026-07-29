@@ -41,6 +41,7 @@
     "@lezer/generator": "^1.7.0",
     "typescript": "^5.6.0"
   },
+  "homepage": "https://codincod.com/",
   "repository": {
     "type": "git",
     "url": "git+https://codeberg.org/reeven/codemirror-lang-lua.git"
