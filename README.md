@@ -57,18 +57,18 @@ Luau's extensions, meaning type annotations, compound assignment and
 
 ## Accuracy
 
-Measured against 1070 Lua programs, the Lua half of the
+Measured against 1072 Lua programs, the Lua half of the
 [Rosetta Code](https://rosettacode.org/) corpus behind
 [CodinCod](https://codincod.com/)'s language-guessing game. A file counts as
 clean only when the parse leaves no error node anywhere.
 
 ```
-files          1070
-clean parses   1044 (97.57%)
-error nodes    604
+files          1072
+clean parses   1048 (97.76%)
+error nodes    370
 ```
 
-All 26 files that are not clean were read, and none is a gap in the grammar.
+All 24 files that are not clean were read, and none is a gap in the grammar.
 
 | | |
 | --: | --- |
