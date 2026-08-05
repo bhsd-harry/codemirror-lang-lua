@@ -26,7 +26,8 @@
     "build-debug": "lezer-generator src/lua.grammar --names -o src/parser.js && cm-buildhelper src/lua.ts",
     "prepare": "npm run build",
     "test": "npm run build && node --test \"test/*.test.ts\"",
-    "corpus": "npm run build && node test/corpus.ts"
+    "corpus": "npm run build && node ../lezer-survey/src/cli.ts measure --group top",
+    "gaps": "npm run build && node ../lezer-survey/src/cli.ts gaps --group top"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.0.0",
