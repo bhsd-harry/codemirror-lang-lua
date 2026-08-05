@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2 (2026-08-06)
+
+The repository link, which npm renders as a link and a browser cannot follow
+with `git+` in front of it.
+
 ## 0.2.1 (2026-07-29)
 
 A line in the README saying what this was written for, and a link to the
