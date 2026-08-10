@@ -84,8 +84,8 @@ closer behind as code, and one snippet had been reduced to nothing but
 `]====]`. These numbers are from the corpus rebuilt after that was fixed.
 
 `npm run corpus -- path/to/files` runs the measurement over your own directory.
-No corpus ships here. Rosetta Code is CC BY-SA and cannot be redistributed
-under this licence.
+No corpus ships here. Rosetta Code is under the GNU Free Documentation License
+1.2 and cannot be redistributed under this one.
 
 ## API Reference
 
