@@ -27,6 +27,7 @@
     "prepare": "npm run build",
     "test": "npm run build && node --test \"test/*.test.ts\"",
     "corpus": "npm run build && node ../lezer-survey/src/cli.ts measure --group top",
+    "fuzz": "npm run build && node ../lezer-survey/src/cli.ts fuzz",
     "gaps": "npm run build && node ../lezer-survey/src/cli.ts gaps --group top"
   },
   "dependencies": {
