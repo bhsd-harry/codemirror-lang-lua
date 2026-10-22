@@ -6,11 +6,11 @@ import {
   foldNodeProp,
   foldInside,
   delimitedIndent,
-  TreeIndentContext
+  type TreeIndentContext
 } from "@codemirror/language"
-import {SyntaxNode} from "@lezer/common"
+import type {SyntaxNode} from "@lezer/common"
 import {styleTags, tags as t} from "@lezer/highlight"
-import {completeFromList, CompletionSource} from "@codemirror/autocomplete"
+import {completeFromList, type CompletionSource} from "@codemirror/autocomplete"
 
 // A block indents its body by one unit, and pulls the line that closes it back
 // out again. Lua closes four different constructs with `end` and one with
@@ -25,8 +25,8 @@ function blockIndent(context: TreeIndentContext) {
 function foldBody(node: SyntaxNode) {
   const blocks = node.getChildren("Block")
   if (!blocks.length) return null
-  const from = blocks[0].from,
-    to = blocks[blocks.length - 1].to
+  const from = blocks[0]!.from,
+    to = blocks[blocks.length - 1]!.to
   return from < to ? {from, to} : null
 }
 
@@ -133,5 +133,3 @@ export const luaCompletion: CompletionSource = completeFromList([
 export function lua() {
   return new LanguageSupport(luaLanguage, [luaLanguage.data.of({autocomplete: luaCompletion})])
 }
-
-export {parser}

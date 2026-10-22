@@ -208,14 +208,8 @@ False { @specialize[@name=false]<identifier, "false"> }
 @tokens {
   space { $[ \t\r\n]+ }
 
-  // Stock Lua accepts ASCII identifiers only, and this accepts anything above
-  // U+007F as well. Lua's lexer asks the C library whether a byte is a letter,
-  // so whether `local α = 1` compiles depends on the locale the interpreter
-  // was built against, and code in the wild uses it: Rosetta Code has a whole
-  // task about it. An editor that paints working code as broken is worse than
-  // one that accepts a program some builds will reject, and rejecting it is a
-  // linter's job anyway.
-  identifier { $[a-zA-Z_\u{80}-\u{10ffff}] $[a-zA-Z_0-9\u{80}-\u{10ffff}]* }
+  // Stock Lua accepts ASCII identifiers only.
+  identifier { $[a-zA-Z_] $[a-zA-Z_0-9]* }
 
   // Lua's escapes, including `\z` (skip whitespace), `\x41`, `\u{1F600}`,
   // `\65` and a backslash-newline continuation. A short string that runs to

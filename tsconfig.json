@@ -1,15 +1,25 @@
 {
-  "compilerOptions": {
-    "target": "es2020",
-    "module": "es2020",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "skipLibCheck": true,
-    "noEmitOnError": true
-  },
-  "include": ["src/lua.ts", "src/tokens.ts", "src/parser.d.ts", "src/parser.terms.d.ts"]
+	"include": [
+		"src/*.ts"
+	],
+	"compilerOptions": {
+		"target": "ES2019",
+		"module": "es6",
+		"moduleResolution": "bundler",
+		"declaration": true,
+		"rootDir": "src",
+		"outDir": "dist",
+		"alwaysStrict": true,
+		"exactOptionalPropertyTypes": true,
+		"noImplicitAny": true,
+		"noImplicitOverride": true,
+		"noImplicitThis": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"strictBindCallApply": true,
+		"strictFunctionTypes": true,
+		"strictNullChecks": true,
+		"useUnknownInCatchVariables": true,
+		"skipLibCheck": true
+	}
 }

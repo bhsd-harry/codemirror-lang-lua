@@ -1,6 +1,9 @@
-# @codincod/codemirror-lang-lua [![NPM version](https://img.shields.io/npm/v/@codincod/codemirror-lang-lua.svg)](https://www.npmjs.org/package/@codincod/codemirror-lang-lua)
+# @bhsd/codemirror-lang-lua
 
-[ [**CHANGELOG**](https://codeberg.org/reeven/codemirror-lang-lua/src/branch/master/CHANGELOG.md) ]
+[![NPM version](https://badge.fury.io/js/@bhsd%2Fcodemirror-lang-lua.svg)](https://www.npmjs.org/package/@bhsd/codemirror-lang-lua)
+[![CodeQL](https://github.com/bhsd-harry/codemirror-lang-lua/actions/workflows/codeql.yml/badge.svg)](https://github.com/bhsd-harry/codemirror-lang-lua/actions/workflows/codeql.yml)
+
+This is a fork of [@codincod/codemirror-lang-lua](https://codeberg.org/reeven/codemirror-lang-lua).
 
 This package implements Lua language support for the
 [CodeMirror](https://codemirror.net/) code editor, using a
@@ -20,7 +23,7 @@ This code is released under an
 
 ```javascript
 import {EditorView, basicSetup} from "codemirror"
-import {lua} from "@codincod/codemirror-lang-lua"
+import {lua} from "@bhsd/codemirror-lang-lua"
 
 const view = new EditorView({
   parent: document.body,
@@ -41,51 +44,14 @@ Long brackets carry a level. `[[...]]` through `[=====[...]=====]` are read for
 both strings and comments, including the half-typed case where the closer is
 not there yet.
 
-Two departures from the reference manual, both because this parses code in an
+One departure from the reference manual because this parses code in an
 editor instead of compiling it.
-
-Identifiers may hold characters above U+007F. Lua's own lexer asks the C
-library whether a byte is a letter, so whether `local α = 1` compiles depends
-on the locale the interpreter was built against, and code in the wild uses it.
-Painting working code as broken is the worse failure.
 
 A newline never ends a statement, so `f\n(x)` is one call, which is what Lua
 does. Lua 5.1 called this ambiguous syntax and 5.2 dropped the complaint.
 
 Luau's extensions, meaning type annotations, compound assignment and
 `continue`, are not supported.
-
-## Accuracy
-
-Measured against 1072 Lua programs, the Lua half of the
-[Rosetta Code](https://rosettacode.org/) corpus behind
-[CodinCod](https://codincod.com/)'s language-guessing game. A file counts as
-clean only when the parse leaves no error node anywhere.
-
-```
-files          1072
-clean parses   1048 (97.76%)
-error nodes    370
-```
-
-All 24 files that are not clean were read, and none is a gap in the grammar.
-
-| | |
-| --: | --- |
-| 14 | are not Lua: C source, HTML output, shell command lines, REPL transcripts and program output, filed under Lua on the wiki |
-| 5 | are Lua that does not compile: a missing `do`, a missing `then`, an unclosed `print(` |
-| 4 | are fragments instead of chunks, like a bare `3.14159` or an anonymous function header |
-| 3 | were damaged before the parser saw them, by a corpus pipeline that masks the language's own name and decodes HTML entities inside string literals |
-
-The measurement paid for itself on its first run by finding a bug in that
-pipeline instead of in the grammar. The comment stripper read `--[==[` as an
-ordinary `--` line comment, so a levelled long comment left its body and its
-closer behind as code, and one snippet had been reduced to nothing but
-`]====]`. These numbers are from the corpus rebuilt after that was fixed.
-
-`npm run corpus -- path/to/files` runs the measurement over your own directory.
-No corpus ships here. Rosetta Code is under the GNU Free Documentation License
-1.2 and cannot be redistributed under this one.
 
 ## API Reference
 
@@ -101,7 +67,3 @@ with highlighting, folding and indentation information.
 **`luaCompletion`**`: CompletionSource`
 
 Autocompletion for Lua's keywords, globals and standard library tables.
-
-**`parser`**`: LRParser`
-
-The raw Lezer parser, for tooling that wants the tree without an editor.
