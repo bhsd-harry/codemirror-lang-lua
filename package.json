@@ -42,7 +42,7 @@
 		"@codemirror/state": "^6.7.6",
 		"@lezer/generator": "^1.8.1",
 		"eslint": "^10.13.0",
-		"typescript": "^6.0.3"
+		"typescript": "^7.0.2"
 	},
 	"homepage": "https://github.com/bhsd-harry/codemirror-lang-lua#readme",
 	"bugs": {
